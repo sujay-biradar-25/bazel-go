@@ -1,0 +1,35 @@
+
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+
+cc_library(
+    name = "mathlib_lib",
+    srcs = ["mathlib.c"],
+    hdrs = ["mathlib.h"],
+    visibility = ["//visibility:public"],
+    linkopts = ["-lm"],  # Link with math library for trigonometric functions
+)
+
+
+go_library(
+    name = "test_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/sujay-biradar-25/bazel-go/cmd/test",
+    cgo = True,
+    cdeps = [":mathlib_lib"],
+    clinkopts = [
+        "-lm",  
+    ],
+    deps = [
+        "@com_github_google_uuid//:uuid",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+
+go_binary(
+    name = "test",
+    embed = [":test_lib"],
+    visibility = ["//visibility:public"],
+)
